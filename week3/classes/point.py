@@ -5,9 +5,9 @@ class Point:
         self.y = y
     def show(self):
         return (self.x, self.y)
-    def move(self, newx, newy):
-        self.x = newx
-        self.y = newy
+    def move(self, moving_point):
+        self.x += moving_point
+        self.y += moving_point
     def dist(self, secondpoint):
         dx = self.x - secondpoint.x
         dy = self.y - secondpoint.y
@@ -22,12 +22,8 @@ p2 = Point(x2, y2)
 print("First point:", p1.show())
 print("Second point:", p2.show())
 print("Distance:", p1.dist(p2))
-newx1 = float(input("enter new x coordinate for the first point: "))    
-newy1 = float(input("enter new y coordinate for the second point: "))  
-p1.move(newx1,newy1)
-newx2 = float(input("enter new x coordinate for the first point: "))    
-newy2 = float(input("enter new y coordinate for the second point: "))  
-p2.move(newx2,newy2)
-print("new coordinates for the first point: ", p1.show())
-print("new coordinates for the second point: ", p2.show())
-print("Distance: ", p1.dist(p2))
+moving_point = float(input("How much do u want to move the point? "))
+p1.move(moving_point)
+p2.move(moving_point)
+print("First point after moving",p1.show())
+print("Second point after moving", p2.show())
