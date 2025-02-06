@@ -4,7 +4,7 @@ def Solve(numheads, numlegs):
     print(f"We have {int(rabbits)} rabbits and {int(chickens)} chickens")
     
 
-
-numheads = 35
-numlegs = 94
-Solve(numheads, numlegs)
+if __name__ == "__main__":
+    numheads = 35
+    numlegs = 94
+    Solve(numheads, numlegs)
