@@ -36,6 +36,6 @@ while True:
         count+=1
     else: 
 
-        print(f"Congratulations! You won! You guessed my number in {count} guesses") 
+        print(f"Congratulations! You won! You guessed my number in {count+1} guesses") 
 
         break 
