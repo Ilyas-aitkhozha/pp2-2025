@@ -2,7 +2,7 @@ import puzzle
 import spygame
 import histogram
 puzzle.Solve(35,94)
-if (spygame.spy_game([3, 5, 4, 0, 0])):
+if (spygame.spy_game([3, 5, 4, 0, 0,  7])):
     print(True)
 else:
     print(False)
