@@ -1,23 +1,28 @@
+# импортируем все что надо
 import pygame
 import random
-
 pygame.init()
+#базовые настройки
 WIDTH, HEIGHT = 600, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 length = 1
 score = 0
 
+#все шрифты все тут настраиваем
 font_end = pygame.font.SysFont('Arial', 66, bold=True)
 font_score = pygame.font.SysFont('Arial', 26, bold=True)
 
+
 snake_size = (30, 30)
 food_size = 10
+
+#словарь для чека нашего направления, (если идем на вверх то вниз будет false)
 dirs = {'W': True, 'S': True, 'D': True, 'A': True}
 
 x = WIDTH // 2
 y = HEIGHT // 2
-
+BLUE = (0,0,255)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -29,40 +34,49 @@ move_t = 0
 # Порог для увеличения скорости
 next_threshold = 3
 
+#когда вызываем, спавним еду где угодно но не на змейке
 def spawn_food():
     return (
         random.randint(0, (WIDTH - food_size) // snake_size[0]) * snake_size[0],
         random.randint(0, (HEIGHT - food_size) // snake_size[1]) * snake_size[1]
     )
 
+#спавним обычную и супер еду(+1)
 food_x, food_y = spawn_food()
+
+#координаты змейки
 snake = [(x, y)]
+#наши направление , к примеру (0, -1 вверх), (1, 0 вправо)
 dx, dy = 0, 0
 running = True
 
 while running:
     screen.fill(BLACK)
-    dt = clock.tick(144) / 1000
-    move_t += dt
+    dt = clock.tick(144) / 1000 #хранит разницу во времени между кадрами
+    move_t += dt# суммирует их(что бы контролировать скорость движения змейки)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    for i, j in snake:
-        pygame.draw.rect(screen, GREEN, (i, j, snake_size[0] - 1, snake_size[1] - 1))
+    for i, j in snake: # рисуем змеечку
+       pygame.draw.rect(screen, GREEN, (i, j, snake_size[0] - 1, snake_size[1] - 1))
+
+    #рисуем еду
     pygame.draw.rect(screen, RED, (food_x, food_y, food_size, food_size))
+    #рендерим наш score
     render_score = font_score.render(f'Score {score}', 1, pygame.Color('orange'))
     screen.blit(render_score, (5, 5))
-
+    #если move_t накопил больше чем move_i то змейка двигается
     if move_t > move_i:
         move_t = 0  # Сбрасываем таймер после движения
         x += dx * snake_size[0]
         y += dy * snake_size[1]
         snake.append((x, y))
-        snake = snake[-length:]
+        snake = snake[-length:]#каждый раз удаляем последний сегмент если не сьела ничего, т.к иначе будет бесконечной
+    
 
-    if snake[-1] == (food_x, food_y):
+    if snake[-1] == (food_x, food_y):#если коснулась, то едим, добавляем score 
         food_x, food_y = spawn_food()
         length += 1
         score += 1
@@ -74,13 +88,14 @@ while running:
 
     if (x < 0 or x > WIDTH - snake_size[0] or
             y < 0 or y > HEIGHT - snake_size[1] or
-            len(snake) != len(set(snake))):
+            len(snake) != len(set(snake))):#проверяем если коснулись границ, или самого себя то тогда gameover
         render_end = font_end.render("ПОКА", 1, pygame.Color('orange'))
         screen.blit(render_end, (WIDTH // 2 - 100, HEIGHT // 3))
         pygame.display.flip()
         pygame.time.wait(2000)
         running = False
 
+    #кнопки управления
     pressed = pygame.key.get_pressed()
     if pressed[pygame.K_w] and dirs['W']:
         dx, dy = 0, -1
