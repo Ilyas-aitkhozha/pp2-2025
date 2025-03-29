@@ -49,7 +49,8 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    [pygame.draw.rect(screen, GREEN, (i, j, snake_size[0] - 1, snake_size[1] - 1)) for i, j in snake]
+    for i, j in snake:
+        pygame.draw.rect(screen, GREEN, (i, j, snake_size[0] - 1, snake_size[1] - 1))
     pygame.draw.rect(screen, RED, (food_x, food_y, food_size, food_size))
     render_score = font_score.render(f'Score {score}', 1, pygame.Color('orange'))
     screen.blit(render_score, (5, 5))
