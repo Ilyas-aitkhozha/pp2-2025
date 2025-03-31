@@ -46,13 +46,13 @@ def update_contacts():
                 conn.commit()
 
                 if update_row_count > 0:
-                    print("Обновление успешно!")
+                    print("Обновление прошло")
                 else:
-                    print("Ничего не изменилось. Проверьте данные.")
+                    print("Ничего не изменилось")
 
     except (Exception, psycopg2.DatabaseError) as error:
-        print(f'Ошибка: {error}')
-    
+        print(error)
+    #узнаем если изменилось че то или нет, чекаем в самом postgresql
     return update_row_count
 
 if __name__ == "__main__":
