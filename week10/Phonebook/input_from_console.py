@@ -3,7 +3,7 @@ from config import load_config
 
 
 def insert_contact():
-    """Добавляет контакт и его номер в базу данных."""
+    #Добавляет контакт и его номер в базу данных
     sql_contacts = """INSERT INTO contacts (first_name, last_name) VALUES (%s, %s) RETURNING id;"""
     sql_phone_numbers = """INSERT INTO phone_numbers (contact_id, phone_number) VALUES (%s, %s);"""
 
@@ -25,7 +25,7 @@ def insert_contact():
 
                 conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
-        print(f'Ошибка: {error}')
+        print(error)
 
     
 
