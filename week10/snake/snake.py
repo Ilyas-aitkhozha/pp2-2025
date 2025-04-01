@@ -10,13 +10,6 @@ def taking_user_name():
     return input("введите свое имя: ")
 pygame.init()
 user_name = taking_user_name()
-if user_exist(user_name):
-    level_num = current_level(user_name)
-    print(f"Добро пожаловать, {user_name}! Ты продолжаешь с уровня {level_num}.")
-else:
-    level_num = 1
-    insert_user_data(user_name, level_num)
-    print(f"Привет, {user_name}! Ты начинаешь с 1 уровня.")
 #базовые настройки
 WIDTH, HEIGHT = 600, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -44,8 +37,7 @@ WHITE = (255, 255, 255)
 move_i = 0.3  # Начальная задержка
 move_t = 0
 
-# Порог для увеличения скорости
-next_threshold = 3
+
 # Событие для таймера еды
 FOOD_TIMEOUT = pygame.USEREVENT + 1
 snake = [(x, y)]
@@ -66,13 +58,29 @@ class Level():
         for pos in positions:
             rect =self.block_img.get_rect(topleft = pos)
             self.blocks.append(rect)
+    def inc_speed(self):
+        global move_i
+        move_i = max(0.05, float(move_i) - 0.05 * int(self.level_num))
+
+
+
 
     def draw(self):
         for block in self.blocks:
             screen.blit(self.block_img, block.topleft)
 
- 
-level = Level(level_num)
+if user_exist(user_name):
+    level_num, length = current_level(user_name)
+    print(f"Добро пожаловать, {user_name}! Ты продолжаешь с уровня {level_num} и длина змейки у тебя {length}.")
+    level = Level(level_num)
+    level.inc_speed()
+else:
+    level_num = 1
+    length = 1
+    insert_user_data(user_name, level_num,length)
+    print(f"Привет, {user_name}! Ты начинаешь с 1 уровня.")
+    level = Level(level_num)
+
 
 #когда вызываем, спавним еду где угодно но не на змейке
 def spawn_food():
@@ -94,17 +102,21 @@ snake = [(x, y)]
 dx, dy = 0, 0
 running = True
 def game_over():
-    global running 
+    global running,final_level
+    updating_level(user_name,final_level,length)
     screen.blit(font_large.render("ПОКА", 1, pygame.Color('orange')), (WIDTH // 2 - 100, HEIGHT // 3))
     pygame.display.flip()
     pygame.time.wait(2000)
     pygame.quit()
     exit()
+
 def colision():
         snake_head = pygame.Rect(snake[-1][0], snake[-1][1], snake_size[0], snake_size[1])
         for block in level.blocks:
             if snake_head.colliderect(block):
                 game_over()
+
+final_level = level_num
 while running:
     screen.fill(BLACK)
     dt = clock.tick(144) / 1000 #хранит разницу во времени между кадрами
@@ -147,13 +159,13 @@ while running:
 
     if score >= level_num * 15:
         level_num +=1
+        final_level = level_num
         level= Level(level_num)
-        move_i = max(0.1, move_i - 0.1) 
+        level.inc_speed()
         screen.fill(BLACK)
         screen.blit(font_large.render(f'LEVEL {level_num}', 1, pygame.Color('yellow')), (WIDTH // 2 - 100, HEIGHT // 3))
         pygame.display.flip()
         pygame.time.wait(1000)
-    final_level = level_num
 
     #чекаем колизии
     if (x < 0 or x > WIDTH - snake_size[0] or
@@ -179,7 +191,3 @@ while running:
         dirs = {'W': True, 'S': True, 'D': False, 'A': True}
 
     pygame.display.flip()
-
-
-updating_level(user_name, final_level)
-pygame.quit()
