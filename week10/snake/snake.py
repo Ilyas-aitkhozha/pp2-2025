@@ -1,8 +1,9 @@
 import pygame
 import random
 import time
-from insert_data import insert_user_data, user_exist, current_data, updating_data
-
+from insert_data import insert_user_data, user_exist, current_data, updating_data,show_leaders
+#в конце выводить таблицу лидеров (limit 3) через sql 
+#добавить задний фон
 def taking_user_name():
     return input("Введите свое имя: ")
 
@@ -12,6 +13,7 @@ user_name = taking_user_name()
 # База
 WIDTH, HEIGHT = 600, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
 clock = pygame.time.Clock()
 
 # Началки по дефолту
@@ -36,13 +38,6 @@ else:#а если не было в игре, то задаем базу
 center_x = WIDTH // 2
 center_y = HEIGHT // 2
 
-# Для возобновления игры формируем змейку как горизонтальную линию,
-# где голова находится в центре. Если длина больше 1, остальные сегменты располагаются слева.
-snake_size = (30, 30)
-snake = [(center_x - i * snake_size[0], center_y) for i in range(length)][::-1]  
-# Начальное направление – вправо (dx=1, dy=0)
-dx, dy = 1, 0
-
 font_large = pygame.font.SysFont('Arial', 66, bold=True)
 font_small = pygame.font.SysFont('Arial', 26, bold=True)
 food_size = 10
@@ -56,14 +51,22 @@ GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
+YELLOW = (255,255,0)
+
+# Для возобновления игры формируем змейку как горизонтальную линию,
+# где голова находится в центре. Если длина больше 1, остальные сегменты располагаются слева.
+snake_size = (25, 25)
+snake = [(center_x - i * snake_size[0], center_y) for i in range(length)][::-1]  
+# Начальное направление – вправо (dx=1, dy=0)
+dx, dy = 1, 0
 
 # Скорость змейки (интервал между перемещениями)
-move_i = 0.3  
+move_i = 0.3
 move_t = 0
 
 # юзерное событие для таймера еды (каждые 3 сек)
 FOOD_TIMEOUT = pygame.USEREVENT + 1
-pygame.time.set_timer(FOOD_TIMEOUT, 3000)
+pygame.time.set_timer(FOOD_TIMEOUT, 5000)
 
 # Класс уровняей (препятствиями)
 class Level():
@@ -87,7 +90,7 @@ class Level():
     
     def inc_speed(self):
         global move_i
-        move_i = max(0.05, move_i - 0.05 * int(self.level_num))
+        move_i = max(0.08, move_i - 0.05 * int(self.level_num))
     
     def draw(self):
         for block in self.blocks:
@@ -133,9 +136,13 @@ def colision():
             pygame.time.wait(2000)
             game_over()
 
+    
+
 paused = False
 escape_pressed = False
-
+tab = False
+tab_pressed = False
+time.sleep(1)#что бы дать время
 while True:
     screen.fill(BLACK)
     dt = clock.tick(144) / 1000  # разница во времени между кадрами
@@ -146,7 +153,7 @@ while True:
         if event.type == FOOD_TIMEOUT:
             food_x, food_y = spawn_food()
             superfood_x, superfood_y = spawn_food()
-            pygame.time.set_timer(FOOD_TIMEOUT, 3000)
+            pygame.time.set_timer(FOOD_TIMEOUT, 5000)
         if event.type == pygame.KEYDOWN: #вызвали паузу
             if event.key == pygame.K_ESCAPE:
                 if not escape_pressed:
@@ -155,12 +162,36 @@ while True:
         if event.type == pygame.KEYUP: #отовызвали паузу
             if event.key == pygame.K_ESCAPE:
                 escape_pressed = False
+        if event.type == pygame.KEYDOWN: #вызвали tab
+            if event.key == pygame.K_TAB:
+                if not tab_pressed:
+                    tab = not tab
+                    tab_pressed = True
+        if event.type == pygame.KEYUP: #отовызвали tab
+            if event.key == pygame.K_TAB:
+                tab_pressed = False
 
     if not paused:
+        if tab:
+            nicknames = show_leaders()
+            top_names, top_score = zip(*nicknames)
+            screen.blit(font_small.render(f"LEADERS:", True, pygame.Color('purple')), (5,30))
+            y_position = 60
+            for name, score in nicknames:
+                line_text = f"{name} {score}"
+                rendered_line = font_small.render(line_text, True, pygame.Color("purple"))
+                screen.blit(rendered_line, (5, y_position))
+                y_position += rendered_line.get_height() + 5
+
+
+            
         # Рисуем змейку
-        for seg in snake:
-            pygame.draw.rect(screen, GREEN, (seg[0], seg[1], snake_size[0] - 1, snake_size[1] - 1))
+        for seg in snake[:-1]:
+            pygame.draw.rect(screen, RED, (seg[0], seg[1], snake_size[0]  , snake_size[1]  ))
+        head = snake[-1]
+        pygame.draw.rect(screen, YELLOW, (head[0], head[1], snake_size[0] , snake_size[1]  ))
         # Рисуем еду
+
         pygame.draw.rect(screen, RED, (food_x, food_y, food_size, food_size))
         pygame.draw.rect(screen, BLUE, (superfood_x, superfood_y, food_size, food_size))
         #рендерим счетик
