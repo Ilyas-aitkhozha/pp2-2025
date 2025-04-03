@@ -11,7 +11,7 @@ pygame.init()
 user_name = taking_user_name()
 
 # База
-WIDTH, HEIGHT = 600, 600
+WIDTH, HEIGHT = 1200, 700
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 clock = pygame.time.Clock()
@@ -78,7 +78,7 @@ class Level():
         
     def locate(self):
         levels = {
-            2: [(100, 100)],
+            2: [(500, 240)],
             3: [(100, 100), (500, 300), (170, 50), (400, 200)],
             4: [(50, 400), (300, 100)],
             5: [(100, 100)]
@@ -137,14 +137,20 @@ def colision():
             game_over()
 
     
-
+background = pygame.image.load('flowers.png')
+snake_head_img = pygame.image.load('snake_head.png')
+snake_body_img = pygame.image.load('snake_body.png')
+# Картинки для еды
+food_img = pygame.image.load('food.png')
+superfood_img = pygame.image.load('super_food.png')
 paused = False
 escape_pressed = False
 tab = False
 tab_pressed = False
 time.sleep(1)#что бы дать время
 while True:
-    screen.fill(BLACK)
+    screen.blit(background, (0,0))
+
     dt = clock.tick(144) / 1000  # разница во времени между кадрами
 
     for event in pygame.event.get():
@@ -170,30 +176,29 @@ while True:
         if event.type == pygame.KEYUP: #отовызвали tab
             if event.key == pygame.K_TAB:
                 tab_pressed = False
-
+    def show_tab():
+        nicknames = show_leaders()
+        top_names, top_score = zip(*nicknames)
+        screen.blit(font_small.render(f"LEADERS:", True, pygame.Color('purple')), (5,30))
+        y_position = 60
+        for name, score in nicknames:
+            line_text = f"{name} {score}"
+            rendered_line = font_small.render(line_text, True, pygame.Color("purple"))
+            screen.blit(rendered_line, (5, y_position))
+            y_position += rendered_line.get_height() + 5
     if not paused:
         if tab:
-            nicknames = show_leaders()
-            top_names, top_score = zip(*nicknames)
-            screen.blit(font_small.render(f"LEADERS:", True, pygame.Color('purple')), (5,30))
-            y_position = 60
-            for name, score in nicknames:
-                line_text = f"{name} {score}"
-                rendered_line = font_small.render(line_text, True, pygame.Color("purple"))
-                screen.blit(rendered_line, (5, y_position))
-                y_position += rendered_line.get_height() + 5
-
-
-            
+            show_tab()
         # Рисуем змейку
         for seg in snake[:-1]:
-            pygame.draw.rect(screen, RED, (seg[0], seg[1], snake_size[0]  , snake_size[1]  ))
+            screen.blit(snake_body_img, (seg[0], seg[1]))
         head = snake[-1]
-        pygame.draw.rect(screen, YELLOW, (head[0], head[1], snake_size[0] , snake_size[1]  ))
+        screen.blit(snake_head_img, (head[0], head[1]))
         # Рисуем еду
 
-        pygame.draw.rect(screen, RED, (food_x, food_y, food_size, food_size))
-        pygame.draw.rect(screen, BLUE, (superfood_x, superfood_y, food_size, food_size))
+        screen.blit(food_img, (food_x, food_y))
+        screen.blit(superfood_img, (superfood_x, superfood_y))
+
         #рендерим счетик
         screen.blit(font_small.render(f'Score {score}', True, pygame.Color('orange')), (5, 5))
         level.draw()
@@ -254,5 +259,5 @@ while True:
             dirs = {'W': True, 'S': True, 'D': False, 'A': True}
     else:
         screen.blit(font_large.render("PAUSE", True, pygame.Color('red')), (WIDTH // 2 - 100, HEIGHT // 3))
-    
+        show_tab()
     pygame.display.flip()
