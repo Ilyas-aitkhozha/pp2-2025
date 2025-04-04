@@ -55,7 +55,7 @@ YELLOW = (255,255,0)
 
 # Для возобновления игры формируем змейку как горизонтальную линию,
 # где голова находится в центре. Если длина больше 1, остальные сегменты располагаются слева.
-snake_size = (25, 25)
+snake_size = (40, 40)
 snake = [(center_x - i * snake_size[0], center_y) for i in range(length)][::-1]  
 # Начальное направление – вправо (dx=1, dy=0)
 dx, dy = 1, 0
@@ -138,11 +138,11 @@ def colision():
 
     
 background = pygame.image.load('flowers.png')
-snake_head_img = pygame.image.load('snake_head.png')
-snake_body_img = pygame.image.load('snake_body.png')
+snake_head_img = pygame.transform.scale(pygame.image.load('snake_head.png'), (40, 40))
+snake_body_img = pygame.transform.scale(pygame.image.load('snake_body.png'), (40, 40))
 # Картинки для еды
-food_img = pygame.image.load('food.png')
-superfood_img = pygame.image.load('super_food.png')
+food_img = pygame.transform.scale(pygame.image.load('food.png'), (40, 40))
+superfood_img = pygame.transform.scale(pygame.image.load('super_food.png'), (40, 40))
 paused = False
 escape_pressed = False
 tab = False
@@ -213,12 +213,16 @@ while True:
             snake = snake[-length:]
         
         # Поедание обычной еды
-        if snake[-1] == (food_x, food_y):
+        snake_rect = pygame.Rect(snake[-1][0], snake[-1][1], snake_size[0], snake_size[1])
+        food_rect = pygame.Rect(food_x, food_y, snake_size[0], snake_size[1])
+        if snake_rect.colliderect(food_rect):
             food_x, food_y = spawn_food()
             length += 1
             score += 1
-        # Поедание супер-еды
-        if snake[-1] == (superfood_x, superfood_y):
+        
+        # Проверка поедания супер-еды
+        superfood_rect = pygame.Rect(superfood_x, superfood_y, snake_size[0], snake_size[1])
+        if snake_rect.colliderect(superfood_rect):
             superfood_x, superfood_y = spawn_food()
             length += 3
             score += 15
