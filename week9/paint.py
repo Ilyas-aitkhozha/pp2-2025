@@ -87,7 +87,7 @@ try:
             spot = pygame.mouse.get_pos()
             if spot:  # Проверяем, что мышь находится в окне
                 if e.key == pygame.K_k:
-                     pygame.draw.polygon(screen, color, [(spot[0], spot[1]), (spot[0] - 120//2, spot[1] + 100), (spot[0] + 120//2, spot[1] + 100)])
+                     pygame.draw.polygon(screen, color, [(spot[0], spot[1]), (spot[0] - 120, spot[1] + 100), (spot[0] + 120, spot[1] + 100)])
                 if e.key == pygame.K_r:
                     rect_size = 100
                     pygame.draw.rect(screen, color, (spot[0], spot[1], rect_size, rect_size + 100))
