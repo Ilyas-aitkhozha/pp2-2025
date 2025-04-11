@@ -2,8 +2,6 @@ import pygame
 import random
 import time
 from insert_data import insert_user_data, user_exist, current_data, updating_data,show_leaders
-#в конце выводить таблицу лидеров (limit 3) через sql 
-#добавить задний фон
 def taking_user_name():
     return input("Введите свое имя: ")
 
@@ -72,16 +70,19 @@ pygame.time.set_timer(FOOD_TIMEOUT, 5000)
 class Level():
     def __init__(self, level_num):
         self.blocks = []
-        self.block_img = pygame.image.load('tnt.png')
+        self.block_img = pygame.transform.scale(pygame.image.load('tnt.png'), (60, 60))
         self.level_num = level_num
         self.locate()
         
     def locate(self):
         levels = {
-            2: [(500, 240)],
-            3: [(100, 100), (500, 300), (170, 50), (400, 200)],
-            4: [(50, 400), (300, 100)],
-            5: [(100, 100)]
+            2: [(500, 240), (250, 100), (900, 200)], # 4
+            3: [(470, 250), (410, 250), (410, 300), (690, 450), (750, 450), (810,170), (870,170)], # 7
+            4: [(470, 250), (410, 250), (410, 300), (690, 450), (750, 450), (810,170), (870,170), (410, 520), (350, 520), (410,580), (690,390)], # 11    
+            5: [(470, 250), (410, 250), (410, 300), (690, 450), (750, 450), (810,170), (870,170), (410, 520), (350, 520), (410,580), (690,390),(120,140),(180,140),(180,80)],
+            6: [(470, 250), (410, 250), (410, 300), (690, 450), (750, 450), (810,170), (870,170), (410, 520), (350, 520), (410,580), (690,390),(120,140),(180,140),(180,80), (930,170),(1080,40),(1080,100)],
+            7: [(470, 250), (410, 250), (410, 300), (690, 450), (750, 450), (810,170), (870,170), (410, 520), (350, 520), (410,580), (690,390),(120,140),(180,140),(180,80), (930,170),(1080,40),(1080,100), (600,100), (660,100), (720,100),(540,160)],
+            8: [(470, 250), (410, 250), (410, 300), (690, 450), (750, 450), (810,170), (870,170), (410, 520), (350, 520), (410,580), (690,390),(120,140),(180,140),(180,80), (930,170),(1080,40),(1080,100), (600,100), (660,100), (720,100),(540,160), (90,400),(90,340), (1000,400), (1000,340)]# 14
         }
         positions = levels.get(self.level_num, [])
         for pos in positions:
@@ -95,6 +96,8 @@ class Level():
     def draw(self):
         for block in self.blocks:
             screen.blit(self.block_img, block.topleft)
+
+
 
 level = Level(level_num)
 level.inc_speed()
@@ -135,6 +138,12 @@ def colision():
             explosion.play()
             pygame.time.wait(2000)
             game_over()
+def reset_snake():
+    global snake, center_x, center_y, dx, dy, length
+    center_x = WIDTH // 2
+    center_y = HEIGHT // 2
+    dx, dy = 1, 0
+    snake = [(center_x, center_y)]
 
     
 background = pygame.image.load('flowers.png')
@@ -212,23 +221,24 @@ while True:
             snake.append((center_x, center_y))
             snake = snake[-length:]
         
-        # Поедание обычной еды
         snake_rect = pygame.Rect(snake[-1][0], snake[-1][1], snake_size[0], snake_size[1])
         food_rect = pygame.Rect(food_x, food_y, snake_size[0], snake_size[1])
+            #через колидерект        
         if snake_rect.colliderect(food_rect):
             food_x, food_y = spawn_food()
             length += 1
             score += 1
         
-        # Проверка поедания супер-еды
+        # поверка поедания супер-еды
         superfood_rect = pygame.Rect(superfood_x, superfood_y, snake_size[0], snake_size[1])
         if snake_rect.colliderect(superfood_rect):
             superfood_x, superfood_y = spawn_food()
             length += 3
-            score += 15
+            score += 3
         
         #  набрал нужный скор для повышения уровня
         if score >= level_num * 15:
+            reset_snake()
             level_num += 1
             updating_data(user_name, score,  length, level_num)
             level = Level(level_num)
